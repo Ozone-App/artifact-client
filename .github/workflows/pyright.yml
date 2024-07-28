@@ -1,0 +1,58 @@
+name: Typecheck
+
+on: [pull_request]
+
+jobs:
+  common:
+    runs-on: ubuntu-latest
+    container:
+      image: ozonechris/base-backend-image
+    steps:
+      # Uncomment if you want to run locally
+      - name: install node inside the base container
+        run: |
+          apt-get update
+          apt-get install -y ca-certificates curl gnupg
+          mkdir -p /etc/apt/keyrings
+          curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+          NODE_MAJOR=20
+          echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+          apt-get update
+          apt-get install -y nodejs
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Build local deps
+        working-directory: ./services/common
+        run: poetry install -vvv --no-ansi; echo $
+      - name: Typecheck with pyright
+        uses: jakebailey/pyright-action@v1
+        with:
+          working-directory: "services/common"
+          version: 1.1.338
+
+  socket:
+    runs-on: ubuntu-latest
+    container:
+      image: ozonechris/base-backend-image
+    steps:
+      # Uncomment if you want to run locally
+      - name: install node inside the base container
+        run: |
+          apt-get update
+          apt-get install -y ca-certificates curl gnupg
+          mkdir -p /etc/apt/keyrings
+          curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+          NODE_MAJOR=20
+          echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+          apt-get update
+          apt-get install -y nodejs
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Build local deps
+        working-directory: ./services/kafka-socket-proxy
+        run: poetry install -vvv --no-ansi; echo $
+      - name: Typecheck with pyright
+        uses: jakebailey/pyright-action@v1
+        with:
+          working-directory: "services/kafka-socket-proxy"
+          version: 1.1.338

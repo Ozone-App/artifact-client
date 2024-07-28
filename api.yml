@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  title: Artifact API
+  description: API for managing Graph RAGs
+  version: 1.0.0
+servers:
+  - url: https://api.ozone.pro/v1
+
+paths:
+  /documents/upload:
+    post:
+      summary: Upload document to analyze
+      requestBody:
+        description: Document object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+
+  /documents/{documentId}:
+    get:
+      summary: Get an document by ID
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single artifact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: Document not found
+    put:
+      summary: Update an existing artifact
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Artifact object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Document'
+      responses:
+        '200':
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          description: Document not found
+    delete:
+      summary: Delete a document by ID
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Document deleted
+        '404':
+          description: Document not found
+        '410':
+          description: Document already deleted
+
+  /graph/create:
+    post:
+      summary: Create Graph RAG
+      requestBody:
+        description: Metadata defining RAG
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphCreate'
+      responses:
+        '200':
+          description: A single artifact
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Graph'
+
+  /graph/query:
+    post:
+      summary: Extract insightful information
+      requestBody:
+        description: Prompt that defines what to look for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphQuery'
+      responses:
+        '200':
+          description: Response to prompt
+          content:
+            application/json:
+              schema:
+                type: string
+
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    Graph:
+      type: object
+      properties:
+        name:
+          type: string
+        edgeCount:
+          type: integer
+        nodeCount:
+          type: integer
+        indexedAt:
+          type: string
+    GraphQuery:
+      type: object
+      properties:
+        namespace:
+          type: string
+        prompt:
+          type: string
+    GraphCreate:
+      type: object
+      properties:
+        namespace:
+          type: string
+        prompt:
+          type: string
+    Document:
+      type: object
+      properties:
+        name:
+          type: string
+        corpus:
+          type: string
+    Status:
+      type: object
+      properties:
+        state:
+          type: string
+        progress:
+          type: integer
+
+security:
+  - ApiKeyAuth: []
